@@ -14,5 +14,9 @@
   "type": "module",
   "workspaces": [
     "src/veecerts_contract_frontend"
-  ]
+  ],
+  "dependencies": {
+    "@connect2ic/core": "0.2.0-beta.24",
+    "@connect2ic/svelte": "0.2.0-beta.24"
+  }
 }
