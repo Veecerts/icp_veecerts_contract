@@ -1,5 +1,5 @@
 [workspace]
-members = [ "src/tokens_transfer",
+members = [
   "src/veecerts_contract_backend",
 ]
 resolver = "2"

@@ -105,30 +105,39 @@ fn create_nft(
     symbol: String,
     description: String,
     logo: Option<String>,
-) -> Result<u128, NFTError> {
+) -> Result<(u128, NFTCollectionOutput), NFTError> {
     STATE.with(|state| {
         let mut state = state.borrow_mut();
         let collection_id = state.collections.len() as u64 + 1;
         let caller = api::caller();
 
         let new_collection = NFTCollection {
+            id: collection_id.clone(),
+            name: name.clone(),
+            symbol: symbol.clone(),
+            owner: caller.clone(),
+            logo: logo.clone(),
+            description: description.clone(),
+            tokens: HashMap::new(),
+        };
+
+        let output = NFTCollectionOutput {
             id: collection_id,
             name,
             symbol,
             owner: caller,
-            logo,
             description,
-            tokens: HashMap::new(),
+            logo,
         };
 
         state.collections.insert(collection_id, new_collection);
 
-        Ok(state.tx_id())
+        Ok((state.tx_id(), output))
     })
 }
 
 #[update]
-fn mint_nft(collection_id: u64, metadata: String) -> Result<u128, NFTError> {
+fn mint_nft(collection_id: u64, metadata: String) -> Result<(u128, NFT), NFTError> {
     STATE.with(|state| {
         let mut state = state.borrow_mut();
         let caller = api::caller();
@@ -145,10 +154,10 @@ fn mint_nft(collection_id: u64, metadata: String) -> Result<u128, NFTError> {
                     collection_id: collection.id,
                     metadata,
                 };
-                collection.tokens.insert(token_id, new_nft);
-                Ok(state.tx_id())
+                collection.tokens.insert(token_id, new_nft.clone());
+                Ok((state.tx_id(), new_nft))
             }
-            None => Err(NFTError::CollectionNotFound),
+            _ => Err(NFTError::CollectionNotFound),
         }
     })
 }

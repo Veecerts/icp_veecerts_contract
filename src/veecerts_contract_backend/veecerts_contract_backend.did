@@ -19,16 +19,21 @@ type NFTError = variant {
   Unauthorized;
 };
 type Result = variant { Ok : nat; Err : NFTError };
-type Result_1 = variant { Ok : opt NFT; Err : NFTError };
+type Result_1 = variant {
+  Ok : record { nat; NFTCollectionOutput };
+  Err : NFTError;
+};
+type Result_2 = variant { Ok : opt NFT; Err : NFTError };
+type Result_3 = variant { Ok : record { nat; NFT }; Err : NFTError };
 service : () -> {
   __get_candid_interface_tmp_hack : () -> (text) query;
   burn_nft : (text) -> (Result);
   collection_metadata : (nat64) -> (opt NFTCollectionOutput) query;
-  create_nft : (text, text, text, opt text) -> (Result);
+  create_nft : (text, text, text, opt text) -> (Result_1);
   description : (nat64) -> (opt text) query;
-  get_nft_metadata : (text) -> (Result_1) query;
+  get_nft_metadata : (text) -> (Result_2) query;
   logo : (nat64) -> (opt text) query;
-  mint_nft : (nat64, text) -> (Result);
+  mint_nft : (nat64, text) -> (Result_3);
   name : (nat64) -> (opt text) query;
   symbol : (nat64) -> (opt text) query;
   transfer_nft : (text, principal, principal) -> (Result);
