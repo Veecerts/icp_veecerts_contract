@@ -9,7 +9,7 @@ use serde::Deserialize;
 type Result<T, E = Error> = StdResult<T, E>;
 
 #[derive(Debug, Clone, Deserialize, CandidType)]
-struct NFT {
+struct Nft {
     id: u64,
     owner: Principal,
     metadata: String,
@@ -24,7 +24,7 @@ struct NFTCollection {
     owner: Principal,
     description: String,
     logo: Option<String>,
-    tokens: HashMap<u64, NFT>,
+    tokens: HashMap<u64, Nft>,
 }
 
 #[derive(Debug, Clone, Deserialize, CandidType)]
@@ -112,10 +112,10 @@ fn create_nft(
         let caller = api::caller();
 
         let new_collection = NFTCollection {
-            id: collection_id.clone(),
+            id: collection_id,
             name: name.clone(),
             symbol: symbol.clone(),
-            owner: caller.clone(),
+            owner: caller,
             logo: logo.clone(),
             description: description.clone(),
             tokens: HashMap::new(),
@@ -137,7 +137,7 @@ fn create_nft(
 }
 
 #[update]
-fn mint_nft(collection_id: u64, metadata: String) -> Result<(u128, NFT), NFTError> {
+fn mint_nft(collection_id: u64, metadata: String) -> Result<(u128, Nft), NFTError> {
     STATE.with(|state| {
         let mut state = state.borrow_mut();
         let caller = api::caller();
@@ -148,7 +148,7 @@ fn mint_nft(collection_id: u64, metadata: String) -> Result<(u128, NFT), NFTErro
                     return Err(NFTError::Unauthorized);
                 }
                 let token_id = collection.tokens.len() as u64 + 1;
-                let new_nft = NFT {
+                let new_nft = Nft {
                     id: token_id,
                     owner: caller,
                     collection_id: collection.id,
@@ -243,7 +243,7 @@ fn transfer_nft(token_id: String, from: Principal, to: Principal) -> Result<u128
 }
 
 #[query]
-fn get_nft_metadata(token_id: String) -> Result<Option<NFT>, NFTError> {
+fn get_nft_metadata(token_id: String) -> Result<Option<Nft>, NFTError> {
     STATE.with(|state| {
         let state = state.borrow();
         let (token_id, collection_id) = parse_token_id(token_id)?;
@@ -262,17 +262,17 @@ fn get_nft_metadata(token_id: String) -> Result<Option<NFT>, NFTError> {
 fn collection_metadata(collection_id: u64) -> Option<NFTCollectionOutput> {
     STATE.with(|state| {
         let state = state.borrow();
-        match state.collections.get(&collection_id) {
-            Some(collection) => Some(NFTCollectionOutput {
+        state
+            .collections
+            .get(&collection_id)
+            .map(|collection| NFTCollectionOutput {
                 id: collection.id,
                 description: collection.description.clone(),
                 symbol: collection.symbol.clone(),
                 name: collection.name.clone(),
-                owner: collection.owner.clone(),
+                owner: collection.owner,
                 logo: collection.logo.clone(),
-            }),
-            None => None,
-        }
+            })
     })
 }
 
@@ -280,10 +280,10 @@ fn collection_metadata(collection_id: u64) -> Option<NFTCollectionOutput> {
 fn symbol(collection_id: u64) -> Option<String> {
     STATE.with(|state| {
         let state = state.borrow();
-        match state.collections.get(&collection_id) {
-            Some(collection) => Some(collection.symbol.clone()),
-            None => None,
-        }
+        state
+            .collections
+            .get(&collection_id)
+            .map(|collection| collection.symbol.clone())
     })
 }
 
@@ -291,10 +291,10 @@ fn symbol(collection_id: u64) -> Option<String> {
 fn name(collection_id: u64) -> Option<String> {
     STATE.with(|state| {
         let state = state.borrow();
-        match state.collections.get(&collection_id) {
-            Some(collection) => Some(collection.name.clone()),
-            None => None,
-        }
+        state
+            .collections
+            .get(&collection_id)
+            .map(|collection| collection.name.clone())
     })
 }
 
@@ -302,10 +302,10 @@ fn name(collection_id: u64) -> Option<String> {
 fn description(collection_id: u64) -> Option<String> {
     STATE.with(|state| {
         let state = state.borrow();
-        match state.collections.get(&collection_id) {
-            Some(collection) => Some(collection.description.clone()),
-            None => None,
-        }
+        state
+            .collections
+            .get(&collection_id)
+            .map(|collection| collection.description.clone())
     })
 }
 
