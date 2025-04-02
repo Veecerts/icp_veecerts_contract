@@ -1,0 +1,102 @@
+type Account = record { ownder : text; subaccount : opt blob };
+type Asset = record {
+  folder_uuid : text;
+  ipfs_hash : text;
+  size_mb : float64;
+  name : text;
+  uuid : text;
+  description : text;
+  last_updated : text;
+  date_added : text;
+  owner_id : principal;
+};
+type AssetFilter = record {
+  max_size_mb : opt float64;
+  name : opt text;
+  description : opt text;
+  min_size_mb : opt float64;
+};
+type AssetOrdering = record { last_updated : opt bool; date_added : opt bool };
+type AssetQueryOptions = record {
+  filter : opt AssetFilter;
+  ordering : opt AssetOrdering;
+};
+type Client = record {
+  "principal" : principal;
+  uuid : text;
+  active_subscription_uuid : opt text;
+};
+type Folder = record {
+  name : text;
+  uuid : text;
+  description : text;
+  last_updated : text;
+  date_added : text;
+  owner_id : principal;
+  client_id : text;
+};
+type FolderFilter = record { name : opt text; description : opt text };
+type FolderQueryOptions = record {
+  filter : opt FolderFilter;
+  ordering : opt AssetOrdering;
+};
+type Paginated = record {
+  opts : opt AssetQueryOptions;
+  offset : opt nat64;
+  limit : opt nat64;
+};
+type Paginated_1 = record {
+  opts : opt FolderQueryOptions;
+  offset : opt nat64;
+  limit : opt nat64;
+};
+type Profile = record {
+  "principal" : principal;
+  last_updated : text;
+  email : opt text;
+  image_hash : opt text;
+  date_added : text;
+  first_name : opt text;
+  last_name : opt text;
+};
+type Result = variant { Ok : nat64; Err : text };
+type Result_1 = variant { Ok : Asset; Err : text };
+type Result_2 = variant { Ok : Folder; Err : text };
+type SubscriptionPackage = record {
+  name : text;
+  uuid : text;
+  last_updated : nat64;
+  monthly_requests : nat64;
+  storage_capacity_mb : nat64;
+  price : float64;
+  max_allowed_sessions : nat64;
+};
+service : () -> {
+  __get_candid_interface_tmp_hack : () -> (text) query;
+  check_balance : (principal) -> (Result) query;
+  check_canister_balance : () -> (Result) query;
+  check_subscription_status : () -> (text) query;
+  client_assets : (text, opt Paginated) -> (vec Asset) query;
+  client_folder : (text, text) -> (opt Folder) query;
+  client_folder_assets : (text, text, opt Paginated) -> (vec Asset) query;
+  client_folders : (text, opt Paginated_1) -> (vec Folder) query;
+  create_update_asset : (Asset) -> (Result_1);
+  create_update_client_package_subscription : (text) -> (text);
+  create_update_folder : (Folder) -> (Result_2);
+  create_update_subscription_package : (
+      opt text,
+      text,
+      float64,
+      nat64,
+      nat64,
+      nat64,
+    ) -> (text);
+  get_canister_account : () -> (Account) query;
+  get_client : () -> (opt Client) query;
+  get_profile : () -> (opt Profile) query;
+  get_profile_by_principal : (principal) -> (opt Profile) query;
+  my_balance : () -> (Result) query;
+  register : () -> (text);
+  subscription_packages : () -> (vec SubscriptionPackage) query;
+  update_profile : (opt text, opt text, opt text, opt text) -> (text);
+}

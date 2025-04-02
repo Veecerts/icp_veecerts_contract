@@ -1,17 +1,31 @@
 {
   "canisters": {
     "veecerts_contract_backend": {
-      "candid": "src/veecerts_contract_backend/veecerts_contract_backend.did",
+      "type": "rust",
       "package": "veecerts_contract_backend",
-      "type": "rust"
+      "candid": "src/veecerts_contract_backend/veecerts_contract_backend.did",
+      "remote": {
+        "id": {
+          "ic": "7dsfs-miaaa-aaaai-atcza-cai"
+        }
+      }
+    },
+    "backend": {
+      "type": "rust",
+      "package": "backend",
+      "candid": "src/backend/backend.did",
+      "remote": {
+        "id": {
+          "ic": "ldz6d-fqaaa-aaaai-atgsa-cai"
+        }
+      }
     }
   },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
+  "networks": {
+    "ic": {
+      "providers": ["https://ic0.app"],
+      "type": "persistent"
     }
   },
-  "output_env_file": ".env",
   "version": 1
 }

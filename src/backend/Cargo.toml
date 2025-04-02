@@ -1,0 +1,16 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = "0.16"
+ic-cdk-timers = "0.10" # Feel free to remove this dependency if you don't need timers
+serde = { version = "1.0.215", features = ["derive"] }
+
+[dev-dependencies]
+pocket-ic = "6.0.0"
