@@ -64,6 +64,7 @@ fn apply_asset_filters(
     opts: Option<Paginated<AssetQueryOptions>>,
 ) -> Vec<Asset> {
     if let Some(opts) = opts {
+        // Apply filters
         if let Some(filter) = opts.opts.clone().and_then(|o| o.filter) {
             if let Some(name) = filter.name {
                 assets.retain(|asset| asset.name.contains(&name));
@@ -78,6 +79,8 @@ fn apply_asset_filters(
                 assets.retain(|asset| asset.size_mb < max_size);
             }
         }
+
+        // Apply ordering
         if let Some(ordering) = opts.opts.and_then(|o| o.ordering) {
             if let Some(date_added) = ordering.date_added {
                 if date_added {
@@ -94,7 +97,19 @@ fn apply_asset_filters(
                 }
             }
         }
+
+        // Apply pagination after filtering and sorting
+        let offset = opts.offset.unwrap_or(0);
+        if offset < assets.len() {
+            let limit = opts.limit.unwrap_or(assets.len() - offset);
+            // Take a slice from offset with specified limit
+            assets = assets.into_iter().skip(offset).take(limit).collect();
+        } else {
+            // If offset is beyond array bounds, return empty vector
+            assets = Vec::new();
+        }
     }
+
     assets
 }
 
